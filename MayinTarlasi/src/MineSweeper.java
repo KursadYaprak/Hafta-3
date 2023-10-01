@@ -1,11 +1,13 @@
 import java.util.Scanner;
 import java.util.Random;
+import java.util.Arrays;
 
 public class MineSweeper {
 
     int lineNumber, pillarNumber, size;
-    char[][] map;
-    char[][] board;
+    int[][] map;
+    int[][] board;
+    boolean[][] openBoard;
 
     Random rand = new Random();
     Scanner input = new Scanner(System.in);
@@ -16,8 +18,9 @@ public class MineSweeper {
         this.lineNumber = lineNumber;
         this.pillarNumber = pillarNumber;
         this.size = lineNumber * pillarNumber;
-        this.map = new char[lineNumber][pillarNumber];
-        this.board = new char[lineNumber][pillarNumber];
+        this.map = new int[lineNumber][pillarNumber];
+        this.board = new int[lineNumber][pillarNumber];
+        this.openBoard = new boolean[lineNumber][pillarNumber];
     }
 
     public void startGame() {
@@ -25,13 +28,13 @@ public class MineSweeper {
         int lineChoice, pillarChoice, rightChoice = 0;
 
         setMines();
-        printBoard(map);
+        createBoard(map);
 
-        System.out.println("Oyununun Başladı !");
+        System.out.println("Oyununuz Başladı.");
 
         while(isGame) {
 
-        printBoard(map);
+        createBoard(board);
 
         System.out.print("Bir Satır Seçiniz : ");
         lineChoice = input.nextInt();
@@ -46,16 +49,24 @@ public class MineSweeper {
             System.out.println("Oyun Alanına Ait Olmayan Bir Konum Girdiniz.");
             continue;
         }
-        if (board[lineChoice][pillarChoice] != '*') {
-            setMines();
-            rightChoice++;
-            if (rightChoice == (size - (size / 4))) {
-                System.out.println("Tebrikler. Tüm Mayınsız Alanları Buldunuz.");
-                break;
+        if (!openBoard[lineChoice][pillarChoice]) {
+            if (map[lineChoice][pillarChoice] != -1) {
+                checkMine(lineChoice, pillarChoice);
+                rightChoice++;
+                if (rightChoice == (size - (size / 4))) {
+                    System.out.println("Tebrikler. Tüm Mayınsız Alanları Buldunuz.");
+                    createBoard(board);
+                    break;
+                }
+            } else {
+                System.out.println("Mayına Bastınız !\nOyun Bitti.");
+                createBoard(map);
+                isGame = false;
             }
+            openBoard[lineChoice][pillarChoice] = true;
         } else {
-            System.out.println("Mayına Bastınız !\nOyun Bitti.");
-            isGame = false;
+            System.out.println("Daha Önce Bu Seçimi Yaptınız.");
+            continue;
         }
     }
 }
@@ -67,62 +78,53 @@ public class MineSweeper {
         while (mine != (size / 4)) {
             randLine = rand.nextInt(lineNumber);
             randPillar = rand.nextInt(pillarNumber);
-            if (map[randLine][randPillar] != '*') {
-                map[randLine][randPillar] = '*';
+            if (map[randLine][randPillar] != -1) {
+                map[randLine][randPillar] = -1;
                 mine++;
             }
         }
     }
 
-    public void createBoard() {
+    public void createBoard(int[][] arr) {
 
         for (int i = 0; i < lineNumber; i++) {
             for (int j = 0; j < pillarNumber; j++) {
-                map[i][j] = '-';
-            }
-        }
-    }
-
-    public void printBoard(char[][] arr) {
-
-        for (int i = 0; i < lineNumber; i++) {
-            for (int j = 0; j < pillarNumber; j++) {
-                System.out.print(arr[i][j] = ' ');
+                if (arr[i][j] >= 0)
+                    System.out.print(" ");
+                System.out.print(arr[i][j] + " ");
             }
             System.out.println();
         }
     }
 
-    /*public void checkMine(int i, int j) {
-        int count = 0;
-        if (gameMap[i][j] == '-') {
-            if((i > 0) && (j > 0) && (gameMap[i-1][j-1] == '*')) {
-                count++;
+    public void checkMine(int i, int j) {
+        if (map[i][j] == 0) {
+            if((i > 0) && (j > 0) && (map[i-1][j-1] == -1)) {
+                board[i][j]++;
             }
-            if((i > 0) && (gameMap[i-1][j] == '*')) {
-                count++;
+            if((i > 0) && (map[i-1][j] == -1)) {
+                board[i][j]++;
             }
-            if((j < pillar - 1) && (i > 0) && (gameMap[i-1][j+1] == '*')) {
-                count++;
+            if((j < pillarNumber - 1) && (i > 0) && (map[i-1][j+1] == -1)) {
+                board[i][j]++;
             }
-            if((j > 0) && (gameMap[i][j-1] == '*')) {
-                count++;
+            if((j > 0) && (map[i][j-1] == -1)) {
+                board[i][j]++;
             }
-            if((j < pillar - 1) && (gameMap[i][j+1] == '*')) {
-                count++;
+            if((j < pillarNumber - 1) && (map[i][j+1] == -1)) {
+                board[i][j]++;
             }
-            if((i < line - 1) && (j > 0) && (gameMap[i+1][j-1] == '*')) {
-                count++;
+            if((i < lineNumber - 1) && (j > 0) && (map[i+1][j-1] == -1)) {
+                board[i][j]++;
             }
-            if((i < line - 1) && (gameMap[i+1][j] == '*')) {
-                count++;
+            if((i < lineNumber - 1) && (map[i+1][j] == -1)) {
+                board[i][j]++;
             }
-            if((j < pillar - 1) && (i < line - 1) && (gameBoard[i+1][j+1] == '*')) {
-                count++;
+            if((j < pillarNumber - 1) && (i < lineNumber - 1) && (map[i+1][j+1] == -1)) {
+                board[i][j]++;
             }
-            gameMap[i][j] = (char) count;
         }
-    }*/
+    }
 
 
 }
