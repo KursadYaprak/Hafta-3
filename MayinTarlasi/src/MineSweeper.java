@@ -66,7 +66,6 @@ public class MineSweeper {
             openBoard[lineChoice][pillarChoice] = true;
         } else {
             System.out.println("Daha Önce Bu Seçimi Yaptınız.");
-            continue;
         }
     }
 }
@@ -125,6 +124,4 @@ public class MineSweeper {
             }
         }
     }
-
-
 }
